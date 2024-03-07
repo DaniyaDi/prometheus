@@ -63,4 +63,4 @@ jobs:
         if: steps.check_namespace.outputs.exists == 'false'
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm install my-prometheus prometheus-community/prometheus --version 25.16.0 - prometheus
+          helm install my-prometheus prometheus-community/prometheus --version 25.16.0 -n prometheus
