@@ -59,13 +59,13 @@ jobs:
         if: steps.check_namespace.outputs.exists == 'false'
         run: kubectl create ns prometheus
 
-
-      /* - name: Deploy prometheus
+     /*
+      - name: Deploy prometheus
         if: steps.check_namespace.outputs.exists == 'false'
         run: |
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm upgrade my-prometheus prometheus-community/prometheus --version 25.16.0 -n prometheus
-          */
+      */
 
       - name: LB
         run: helm upgrade my-prometheus prometheus-community/prometheus --version 25.16.0 -n prometheus --values ./default-values.yaml --values ./values.yaml
