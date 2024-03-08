@@ -23,6 +23,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      - name: Update kubeconfig
+        run: aws eks --region us-east-1 update-kubeconfig --name education-eks-UBc9ZA6Z
+
+
       - name: Install kubectl and kubens
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -39,8 +43,6 @@ jobs:
           chmod +x get_helm.sh
           sudo ./get_helm.sh
 
-      - name: Update kubeconfig
-        run: aws eks --region us-east-1 update-kubeconfig --name education-eks-UBc9ZA6Z
 
       - name: Verify kubeconfig
         run: kubectl get nodes
@@ -55,11 +57,29 @@ jobs:
             kubectl create ns prometheus
           fi
 
-      - name: Create Namespace if not exists
-        if: steps.check_namespace.outputs.exists == 'false'
-        run: kubectl create ns prometheus
+      # - name: Create Namespace if not exists
+      #   if: steps.check_namespace.outputs.exists == 'false'
+      #   run: kubectl create ns prometheus
 
-      - name: Deploy Prometheus
+      # - name: Deploy Prometheus
+      #   run: |
+      #     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+      #     helm upgrade my-prometheus prometheus-community/prometheus --version 25.16.0 -n prometheus --values ./default-values.yaml --values ./values.yaml
+
+      - name: Clone prometheus
+        uses: GuillaumeFalourd/clone-github-repo-action@v2.3
+        with:
+          depth: 1
+          branch: 'main'
+          owner: 'DaniyaDi'
+          repository: 'prometheus'
+    
+      - name: Access cloned repo
         run: |
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm upgrade my-prometheus prometheus-community/prometheus --version 25.16.0 -n prometheus --values ./default-values.yaml --values ./values.yaml
+           cd prometheus
+           ls -la
+
+      - name: Deploy Helm Chart
+        run: |
+           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+           helm upgrade my-prometheus prometheus-community/prometheus --version 25.16.0 -n prometheus --values ./default-values.yaml --values ./values.yaml
